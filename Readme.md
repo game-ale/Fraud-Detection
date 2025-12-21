@@ -51,6 +51,9 @@ The foundation for modeling has been laid with the following accomplishments:
 ### 1. Data Cleaning & Integration
 - **Missing Values & Duplicates:** Verified data integrity; handled minor missing values in geolocation mapping.
 - **Geolocation Integration:** Successfully converted IP addresses to integer ranges and merged the e-commerce dataset with country labels.
+- **EDA Notebooks:** Created detailed analysis notebooks:
+    - [eda-fraud-data.ipynb](file:///c:/week5/Fraud-Detection/notebooks/eda-fraud-data.ipynb)
+    - [eda-creditcard.ipynb](file:///c:/week5/Fraud-Detection/notebooks/eda-creditcard.ipynb)
 
 ### 2. Feature Engineering
 - **Time-Based Features:** Extracted `hour_of_day`, `day_of_week`, and `time_since_signup` (duration between signup and purchase).
