@@ -8,18 +8,11 @@ def load_data():
     ip_df = pd.read_csv('data/raw/IpAddress_to_Country.csv')
     return fraud_df, ip_df
 
-def ip_to_int(ip):
-    try:
-        parts = list(map(int, ip.split('.')))
-        return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parts[3]
-    except:
-        return 0
-
 def preprocess_fraud_data(df, ip_df):
     print("Preprocessing Fraud Data...")
     
-    # 1. Convert IP to integer and ensure dtype match for merge_asof
-    df['ip_address_int'] = df['ip_address'].apply(ip_to_int).astype('float64')
+    # 1. IP is already in integer format in this dataset (but typed as float)
+    df['ip_address_int'] = df['ip_address'].astype('float64')
     ip_df['lower_bound_ip_address'] = ip_df['lower_bound_ip_address'].astype('float64')
     ip_df['upper_bound_ip_address'] = ip_df['upper_bound_ip_address'].astype('float64')
     
