@@ -1,111 +1,81 @@
-# Fraud Detection for E-commerce and Bank Transactions
+# 🛡️ Fraud Detection for E-commerce and Bank Transactions
+
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Scikit-Learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![XGBoost](https://img.shields.io/badge/XGBoost-Ensemble-green?style=for-the-badge)](https://xgboost.ai/)
+[![DeepMind](https://img.shields.io/badge/Built%20by-Adey%20Innovations%20Inc.-blue?style=for-the-badge)](https://github.com/game-ale)
 
 ## 📌 Project Overview
-Adey Innovations Inc. is a leading financial technology company specializing in e-commerce and banking solutions. This project focuses on building a robust, high-accuracy fraud detection system that balances security with user experience. By leveraging machine learning, geolocation analysis, and transaction pattern recognition, we aim to identify fraudulent activities in real-time, preventing financial loss and building trust with our customers.
+Adey Innovations Inc. specializes in secure financial technology. This project develops a high-accuracy fraud detection system for both e-commerce and banking sectors. By blending **Geolocation Analysis**, **Transaction Pattern Recognition**, and **Advanced Ensembling**, we minimize financial leakage while maintaining a seamless user experience.
 
 ## 💼 Business Need
-Fraud detection is a critical challenge where:
-- **False Positives** (flagging legitimate transactions) alienate customers.
-- **False Negatives** (missing actual fraud) lead to direct financial loss.
-The goal is to develop models that effectively manage this trade-off while handling the unique challenges of highly imbalanced data.
+Fraud detection is a balancing act:
+- **Minimize False Positives:** Avoid blocking legitimate customers.
+- **Minimize False Negatives:** Prevent direct financial loss from missed fraud.
+Our models are optimized for **Recall** and **PR-AUC** to maximize security without compromising trust.
 
 ---
 
-## 🛠️ Tech Stack
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white)
-![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white)
-![Scikit-Learn](https://img.shields.io/badge/scikit--learn-%23F7931E.svg?style=for-the-badge&logo=scikit-learn&logoColor=white)
-![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)
-![SHAP](https://img.shields.io/badge/SHAP-Explainability-blue?style=for-the-badge)
-
-## 📊 Data Description
-The project utilizes three primary datasets:
-1.  **Fraud_Data.csv (E-commerce Transactions):** Includes user signup details, purchase time, device info, and IP addresses. **Target:** `class`.
-2.  **IpAddress_to_Country.csv:** Maps IP addresses to their respective countries for geolocation analysis.
-3.  **creditcard.csv (Bank Transactions):** Anonymized PCA-transformed features of bank credit card transactions. **Target:** `Class`.
-
----
-
-## 🛠️ Project Structure
+## 🏗️ Project Structure
 ```text
 fraud-detection/
-├── .github/workflows/       # CI/CD pipelines
-├── data/
-│   ├── raw/                 # Original datasets
-│   └── processed/           # Cleaned and feature-engineered data
-├── notebooks/               # Jupyter notebooks for EDA and modeling
-├── src/                     # Source code (modular logic)
-├── tests/                   # Unit tests
-├── models/                  # Saved model artifacts
-├── scripts/                 # Automation and preprocessing scripts
-├── requirements.txt         # Project dependencies
+├── data/                    # Raw and engineered datasets (Gitignored)
+├── notebooks/               # EDA, Feature Engineering, and Modeling experiments
+├── src/                     # Modular source code and utilities
+├── models/                  # Saved model artifacts (.joblib) and visuals
+├── scripts/                 # Automation for preprocessing and training
+├── tests/                   # Unit tests for core logic
 └── README.md                # Project documentation
 ```
 
 ---
 
-## ✅ Progress: Task 1 - Data Analysis and Preprocessing
-The foundation for modeling has been laid with the following accomplishments:
+## ✅ Progress: Phase 1 & 2
 
-### 1. Data Cleaning & Integration
-- **Missing Values & Duplicates:** Verified data integrity; handled minor missing values in geolocation mapping.
-- **Geolocation Integration:** Successfully converted IP addresses to integer ranges and merged the e-commerce dataset with country labels.
-- **EDA Notebooks:** Created detailed analysis notebooks:
-    - [eda-fraud-data.ipynb](file:///c:/week5/Fraud-Detection/notebooks/eda-fraud-data.ipynb)
-    - [eda-creditcard.ipynb](file:///c:/week5/Fraud-Detection/notebooks/eda-creditcard.ipynb)
+### 📋 Task 1: Data Analysis and Preprocessing
+- **Geolocation Mapping:** Merged IP address ranges with country data for spatial fraud insights.
+- **Feature Engineering:** Extracted `time_since_signup`, `hour_of_day`, and transaction frequency features.
+- **Imbalance Handling:** Applied **SMOTE** to handle extreme class imbalance (0.17% fraud in banking).
 
-### 2. Feature Engineering
-- **Time-Based Features:** Extracted `hour_of_day`, `day_of_week`, and `time_since_signup` (duration between signup and purchase).
-- **Transaction Velocity:** Calculated frequency of transactions per `device_id` and `ip_address` to identify automated or high-risk patterns.
+### 🤖 Task 2: Model Building and Training
+We evaluated multiple architectures using **Stratified 5-Fold Cross-Validation**.
 
-### 3. Handling Class Imbalance
-- **Strategy:** Employed **SMOTE (Synthetic Minority Over-sampling Technique)** on the training data to address extreme imbalance (especially in the bank dataset).
-- **Integrity:** Used stratified splitting to ensure evaluation remains realistic on untouched test data.
+#### **Best Model Performance (XGBoost)**
+| Dataset | Precision | Recall | F1-Score | PR-AUC |
+| :--- | :---: | :---: | :---: | :---: |
+| **E-commerce (Fraud)** | 0.95 | 0.55 | 0.70 | 0.78 |
+| **Bank (Credit Card)** | 0.53 | 0.98 | 0.69 | 0.81 |
 
-### 📈 Key Insights from Task 1
-- **Fraud Prevalence:** 9.36% in E-commerce data vs. a mere 0.17% in Credit Card transactions.
-- **Top Fraud Countries:** High fraud rates observed in Turkmenistan, Namibia, and Sri Lanka.
-- **Transaction Patterns:** Most fraud occurs shortly after user signup, highlighting the importance of the `time_since_signup` feature.
+> [!IMPORTANT]
+> For banking transactions, we achieved a **98% Recall**, ensuring nearly all fraudulent activities are captured, which is critical for financial security.
 
-### 4. Data Transformation
-- **Encoding:** Categorical variables (Source, Browser, Sex, Country) were encoded for model compatibility.
-- **Scaling:** Applied `StandardScaler` to numerical features to ensure balanced influence across and ensemble models.
+#### **Model Comparison**
+- **Logistic Regression:** Served as a strong, interpretable baseline.
+- **Random Forest:** Improved performance through ensemble bagging.
+- **XGBoost:** Selected as final model due to its superior gradient boosting capability and PR-AUC performance.
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Python 3.8+
-- Jupyter Notebook
-
 ### Installation
-1. Clone the repository:
-   ```bash
-   git clone <https://github.com/game-ale/Fraud-Detection>
-   cd Fraud-Detection
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### Running Preprocessing
-Execute the following scripts in order to generate the processed data:
 ```bash
-python scripts/preprocess_fraud_data.py
-python scripts/preprocess_creditcard.py
-python scripts/handle_imbalance.py
+git clone https://github.com/game-ale/Fraud-Detection.git
+cd Fraud-Detection
+pip install -r requirements.txt
 ```
+
+### Execution Pipeline
+1. **Preprocessing:** `python scripts/preprocess_fraud_data.py`
+2. **Modeling:** `python scripts/train_models.py --dataset fraud --dataset creditcard`
 
 ---
 
 ## 📅 Roadmap
-- [x] **Task 1: Preprocessing & EDA** (Completed)
-- [ ] **Task 2: Model Building & Training** (Next)
+- [x] **Task 1: Preprocessing & EDA**
+- [x] **Task 2: Model Building & Training**
 - [ ] **Task 3: Model Explainability (SHAP)**
-- [ ] **Final Reporting & Business Recommendations**
+- [ ] **Final Deployment & Business Reporting**
 
 ---
 **Tutors:** Kerod, Mahbubah, Filimon  
