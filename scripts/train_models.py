@@ -49,16 +49,15 @@ def train_and_evaluate(dataset_name, X_train, X_test, y_train, y_test):
     # 2. Ensemble: Random Forest
     logger.info(f"Training Random Forest for {dataset_name}...")
     rf_params = {
-        'n_estimators': [100, 200],
-        'max_depth': [10, 20, None],
-        'min_samples_split': [2, 5]
+        'n_estimators': [50 if dataset_name == 'creditcard' else 100],
+        'max_depth': [10]
     }
     rf = RandomForestClassifier(random_state=42)
-    grid_rf = GridSearchCV(rf, rf_params, cv=3, scoring='f1', n_jobs=-1)
+    grid_rf = GridSearchCV(rf, rf_params, cv=2, scoring='f1', n_jobs=-1)
     grid_rf.fit(X_train, y_train)
     best_rf = grid_rf.best_estimator_
     
-    rf_cv = perform_cv(best_rf, X_train, y_train)
+    rf_cv = perform_cv(best_rf, X_train, y_train, cv=2 if dataset_name == 'creditcard' else 3)
     y_pred_rf = best_rf.predict(X_test)
     y_probs_rf = best_rf.predict_proba(X_test)[:, 1]
     rf_metrics = calculate_metrics(y_test, y_pred_rf, y_probs_rf)
@@ -72,12 +71,19 @@ def train_and_evaluate(dataset_name, X_train, X_test, y_train, y_test):
     
     # 3. Ensemble: XGBoost
     logger.info(f"Training XGBoost for {dataset_name}...")
+    xgb_params = {
+        'n_estimators': [50 if dataset_name == 'creditcard' else 100],
+        'max_depth': [3],
+        'learning_rate': [0.1]
+    }
     xgb = XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42)
-    xgb.fit(X_train, y_train) # Using default for brevity in script, can tune later
+    grid_xgb = GridSearchCV(xgb, xgb_params, cv=2, scoring='f1', n_jobs=-1)
+    grid_xgb.fit(X_train, y_train)
+    best_xgb = grid_xgb.best_estimator_
     
-    xgb_cv = perform_cv(xgb, X_train, y_train)
-    y_pred_xgb = xgb.predict(X_test)
-    y_probs_xgb = xgb.predict_proba(X_test)[:, 1]
+    xgb_cv = perform_cv(best_xgb, X_train, y_train, cv=2 if dataset_name == 'creditcard' else 3)
+    y_pred_xgb = best_xgb.predict(X_test)
+    y_probs_xgb = best_xgb.predict_proba(X_test)[:, 1]
     xgb_metrics = calculate_metrics(y_test, y_pred_xgb, y_probs_xgb)
     
     results.append({
@@ -87,16 +93,22 @@ def train_and_evaluate(dataset_name, X_train, X_test, y_train, y_test):
         'test_pr_auc': xgb_metrics['pr_auc']
     })
     
-    # Save best model based on test F1
+    # Save best model based on test F1 and plot confusion matrix
     best_model_info = max(results, key=lambda x: x['test_f1'])
     logger.info(f"Best model for {dataset_name}: {best_model_info['model']} with F1: {best_model_info['test_f1']}")
     
     if best_model_info['model'] == 'Logistic Regression':
-        save_model(lr, f'models/{dataset_name}_best_model.joblib')
+        best_model = lr
+        best_preds = y_pred_lr
     elif best_model_info['model'] == 'Random Forest':
-        save_model(best_rf, f'models/{dataset_name}_best_model.joblib')
+        best_model = best_rf
+        best_preds = y_pred_rf
     else:
-        save_model(xgb, f'models/{dataset_name}_best_model.joblib')
+        best_model = best_xgb
+        best_preds = y_pred_xgb
+    
+    save_model(best_model, f'models/{dataset_name}_best_model.joblib')
+    plot_confusion_matrix(y_test, best_preds, f"{best_model_info['model']} on {dataset_name}", save_path=f"models/{dataset_name}_confusion_matrix.png")
         
     return results
 
