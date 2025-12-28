@@ -17,16 +17,15 @@ Our models are optimized for **Recall** and **PR-AUC** to maximize security with
 ---
 
 ## 🏗️ Project Structure
-```text
-fraud-detection/
-├── data/                    # Raw and engineered datasets (Gitignored)
-├── notebooks/               # EDA, Feature Engineering, and Modeling experiments
-├── src/                     # Modular source code and utilities
-├── models/                  # Saved model artifacts (.joblib) and visuals
-├── scripts/                 # Automation for preprocessing and training
-├── tests/                   # Unit tests for core logic
-└── README.md                # Project documentation
-```
+| Folder | Description |
+| :--- | :--- |
+| `data/` | Raw and engineered datasets (Gitignored). |
+| `notebooks/` | EDA, Feature Engineering, and Modeling experiments. |
+| `src/` | Modular source code and reusable utilities. |
+| `models/` | Saved model artifacts (.joblib) and confusion matrices. |
+| `reports/` | Official project reports and documentation. |
+| `scripts/` | Automation for preprocessing, splitting, and training. |
+| `tests/` | Unit tests for core logic verification. |
 
 ---
 

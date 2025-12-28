@@ -62,3 +62,9 @@ def save_model(model, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     joblib.dump(model, path)
     logger.info(f"Model saved to {path}")
+
+def separate_features_target(df, target_col):
+    """Separate features (X) and target (y) from a dataframe."""
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
+    return X, y

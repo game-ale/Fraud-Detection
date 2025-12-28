@@ -4,8 +4,7 @@ matplotlib
 seaborn
 scikit-learn
 xgboost
-lightgbm
-shap
 imbalanced-learn
+joblib
 pytest
 jupyter
