@@ -70,11 +70,27 @@ pip install -r requirements.txt
 
 ---
 
+## 🧠 Phase 3: Model Explainability (SHAP)
+We moved beyond "black-box" predictions to understand the *why* behind fraud detection.
+
+### Key Drivers
+- **Time Since Signup:** Immediate transactions after account creation are the #1 predictor of fraud.
+- **Purchase Value:** High-value transactions, especially from new IPs, carry significant weight.
+- **Anonymized Features (V14, V17):** In the bank dataset, specific PCA vectors (likely correlating to card-not-present scenarios) are dominant.
+
+> [!TIP]
+> **Business Rule:** We recommend implementing **Step-Up Authentication** (OTP) for any transaction > $100 occurring within 1 hour of account signup.
+
+[👉 Read the Full Explainability Report](reports/model_explainability_report.md)
+
+---
+
 ## 📅 Roadmap
 - [x] **Task 1: Preprocessing & EDA**
 - [x] **Task 2: Model Building & Training**
-- [ ] **Task 3: Model Explainability (SHAP)**
-- [ ] **Final Deployment & Business Reporting**
+- [x] **Task 3: Model Explainability (SHAP)**
+- [ ] **Task 4: Model Deployment & API**
+- [ ] **Task 5: Final Dashboard & Reporting**
 
 ---
 **Tutors:** Kerod, Mahbubah, Filimon  

@@ -7,9 +7,9 @@ import seaborn as sns
 import shap
 import argparse
 from sklearn.metrics import confusion_matrix
+import sys
 
 # Add project root to path for imports
-import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def load_data_and_model(dataset_name):
@@ -66,6 +66,24 @@ def generate_shap_plots(model, X_test, y_test, dataset_name, save_dir):
     else:
         shap_values_to_plot = shap_values
 
+    # Print top 10 SHAP features to console for reporting
+    try:
+        feature_importance = np.abs(shap_values_to_plot).mean(0)
+        # Ensure it's 1D
+        if len(feature_importance.shape) > 1:
+             feature_importance = feature_importance.flatten()
+             
+        top_features = pd.DataFrame({
+            'feature': X_sample.columns,
+            'importance': feature_importance
+        }).sort_values('importance', ascending=False).head(10)
+        
+        print(f"\nTop 10 SHAP features for {dataset_name}:")
+        print(top_features)
+    except Exception as e:
+        print(f"Could not print top features: {e}")
+        print(f"Shape of shap_values_to_plot: {np.shape(shap_values_to_plot)}")
+
     # 1. SHAP Summary Plot
     plt.figure(figsize=(12, 8))
     # In newer SHAP versions, summary_plot might prefer a specific call pattern
@@ -84,14 +102,19 @@ def generate_shap_plots(model, X_test, y_test, dataset_name, save_dir):
     fp_idx = np.where((y_test == 0) & (y_pred == 1))[0]
     fn_idx = np.where((y_test == 1) & (y_pred == 0))[0]
     
+    print(f"Dataset {dataset_name}: Found {len(tp_idx)} TP, {len(fp_idx)} FP, {len(fn_idx)} FN cases.")
+    
     cases = {
         'true_positive': tp_idx[0] if len(tp_idx) > 0 else None,
         'false_positive': fp_idx[0] if len(fp_idx) > 0 else None,
         'false_negative': fn_idx[0] if len(fn_idx) > 0 else None
     }
     
-    print(f"Found {len(tp_idx)} TP, {len(fp_idx)} FP, {len(fn_idx)} FN cases.")
-    
+    # Get expected value (base value)
+    base_val = explainer.expected_value
+    if isinstance(base_val, (list, np.ndarray)):
+        base_val = base_val[1] # Use positive class for binary
+
     for case_name, idx in cases.items():
         if idx is not None:
             # Re-calculate SHAP for the specific instance
@@ -104,15 +127,20 @@ def generate_shap_plots(model, X_test, y_test, dataset_name, save_dir):
             else:
                 sv_to_plot = sv
                 
-            plt.figure(figsize=(15, 3))
+            plt.figure(figsize=(20, 3))
             # matplotlib=True is for individual plots
             try:
-                shap.force_plot(explainer.expected_value if not isinstance(explainer.expected_value, (list, np.ndarray)) else explainer.expected_value[1], 
-                                sv_to_plot[0] if len(sv_to_plot.shape) > 1 else sv_to_plot, 
-                                instance.iloc[0], 
-                                matplotlib=True, show=False)
-                plt.title(f'SHAP Force Plot: {case_name} ({dataset_name})')
-                plt.savefig(os.path.join(save_dir, f'{dataset_name}_shap_{case_name}.png'), bbox_inches='tight')
+                shap.force_plot(
+                    base_val, 
+                    sv_to_plot[0] if len(sv_to_plot.shape) > 1 else sv_to_plot, 
+                    instance.iloc[0], 
+                    matplotlib=True, 
+                    show=False
+                )
+                plt.title(f'SHAP Force Plot: {case_name} ({dataset_name})', y=1.5)
+                save_path = os.path.join(save_dir, f'{dataset_name}_shap_{case_name}.png')
+                plt.savefig(save_path, bbox_inches='tight')
+                print(f"Saved {case_name} plot to {save_path}")
             except Exception as e:
                 print(f"Error plotting {case_name}: {e}")
             plt.close()
