@@ -27,7 +27,20 @@ The summary plots below rank features by their impact on the model's output.
 
 ---
 
-## 3. Case Studies (Force Plots)
+## 3. comparison: SHAP vs. Built-in Importance
+We compared the model's internal feature importance (Gain/Gini) with SHAP values to detect biases.
+
+| Feature | Built-in Rank | SHAP Rank | Insight |
+| :--- | :--- | :--- | :--- |
+| **Purchase Value** | #1 | #1 | Consistent. Both methods agree this is the primary driver. |
+| **Time Since Signup** | #3 | #2 | **Underestimated by Model.** SHAP reveals this is more critical for individual decisions than the global tree structure suggests. |
+| **Source (Browser/IP)** | #2 | #5 | **Overestimated by Model.** The model splits frequently on this, but it often has a lower marginal contribution to the final probability than `Time Since Signup`.
+
+**Key Takeaway:** relying solely on built-in importance would have led us to de-prioritize "Time Since Signup" in our rules engine, missing a key signal for "Burn and Turn" fraud.
+
+---
+
+## 4. Case Studies (Force Plots)
 We analyzed individual predictions to validate model logic.
 
 ### ✅ True Positive (Success Story)
@@ -43,7 +56,7 @@ We analyzed individual predictions to validate model logic.
 
 ---
 
-## 4. Business Recommendations
+## 5. Business Recommendations
 Based on these insights, we recommend the following rules:
 
 1.  **Velocity Velocity Rule:**
@@ -60,6 +73,6 @@ Based on these insights, we recommend the following rules:
 
 ---
 
-## 5. Next Steps
+## 6. Next Steps
 *   Deploy model with SHAP-based monitoring.
 *   Implement real-time dashboard for "Explanation as a Service" for customer support agents.
